@@ -1,106 +1,127 @@
-# url-shortener-springboot
+# Scalable URL Shortener with Analytics
 
-## Overview
-A backend system built using Spring Boot that generates short URLs, handles redirection, and improves performance using Redis caching and rate limiting.
+A production-oriented backend system that generates short URLs and handles high-volume redirection efficiently using caching, rate limiting, and optimized database access. Built with Spring Boot, PostgreSQL, and Redis, this project demonstrates real-world backend engineering principles focused on performance, scalability, and system reliability.
 
-This project simulates real-world backend challenges such as high read traffic, caching strategies, and request throttling.
+---
+
+## Key Highlights
+
+- Achieved low-latency redirection using Redis caching (cache-aside pattern)  
+- Reduced database load significantly by serving repeated requests from cache  
+- Implemented rate limiting (100 requests/min/IP) to handle high traffic safely  
+- Designed analytics tracking for monitoring URL usage  
+- Integrated expiry mechanism to manage data lifecycle  
+- Used Base62 encoding for compact, scalable short URL generation  
 
 ---
 
 ## Tech Stack
-- Java
-- Spring Boot
-- PostgreSQL
-- Redis
+
+Java, Spring Boot, PostgreSQL, Redis, Maven  
+
+---
+
+## System Design Overview
+
+Client → Controller → Service → Redis Cache → Database  
+
+Flow:  
+Request → Check Redis → If miss → Fetch DB → Store in Redis → Return response  
 
 ---
 
 ## API Endpoints
 
-### Create Short URL
-POST /shorten
+Create Short URL  
+POST /api/shorten  
 
 Request:
 {
-  "url": "https://example.com"
+  "url": "https://google.com"
 }
 
 Response:
-abc123
+b
 
 ---
 
-### Redirect to Original URL
-GET /{shortCode}
+Redirect  
+GET /api/{code}  
 
-Response:
-Redirects to original URL (HTTP 302)
+Example:
+http://localhost:8081/api/b  
+
+Returns HTTP 302 redirect to the original URL  
 
 ---
 
-## ⚡ Caching Strategy (Redis)
+Analytics  
+GET /api/analytics/{code}  
 
-- Implemented cache-aside pattern
-- First request → data fetched from PostgreSQL
-- Subsequent requests → served from Redis
-- Reduces database load and improves response time
+Provides original URL, click count, creation time, and expiry  
+
+---
+
+## Performance Optimizations
+
+- Cache-aside pattern reduces database calls  
+- O(1) lookup using indexed short codes  
+- Redis ensures faster response for frequently accessed URLs  
 
 ---
 
 ## Rate Limiting
 
-- Implemented fixed-window rate limiting using Redis
-- Limit: 100 requests per minute per IP
-- Prevents abuse and ensures system stability
+- Implemented using Redis counters  
+- Limits each IP to 100 requests per minute  
+- Prevents system abuse and overload  
 
 ---
 
-## System Design
+## Expiry Handling
 
-Client → Spring Boot API → Redis (Cache) → PostgreSQL
-
-- Redis used for fast read access
-- PostgreSQL used for persistent storage
-- Cache reduces repeated database queries
-- Rate limiting protects system from traffic spikes
+- Each URL has a defined expiration time  
+- Expired URLs are blocked at service level  
 
 ---
 
-## Performance
+## Setup
 
-- <50ms response time for cached requests
-- Reduced database load by ~40% using Redis
-- Optimized lookup using indexed database schema
-
----
-
-## How to Run
-
-1. Start PostgreSQL and Redis
-2. Clone the repository
-3. Run the application:
-
-mvn spring-boot:run
-
-4. Test APIs using Postman or curl
+1. Start PostgreSQL and Redis  
+2. Create database: createdb urlshortener  
+3. Configure database credentials in application.properties  
+4. Run application: mvn spring-boot:run  
 
 ---
 
-## Example Flow
+## Testing
 
-1. Create short URL  
-2. Receive short code  
-3. Access short URL  
-4. Redirect to original URL  
-
-Example:
-http://localhost:8080/abc123 → https://google.com
+POST /api/shorten  
+GET /api/{code}  
+GET /api/analytics/{code}  
 
 ---
 
-## Key Learnings
+## Project Structure
 
-- Designing backend systems for high read traffic
-- Implementing caching strategies using Redis
-- Applying rate limiting to control API usage
-- Improving performance using system-level optimizations
+src/main/java/com/example/demo  
+controller  
+service  
+repository  
+model  
+
+---
+
+## Why This Project Stands Out
+
+- Demonstrates backend system design beyond CRUD applications  
+- Incorporates caching, rate limiting, and performance optimization  
+- Designed with scalability and real-world use cases in mind  
+- Reflects strong understanding of distributed system fundamentals  
+
+---
+
+## Author
+
+Vyshnavi Kommu  
+Email: kommuvyshnavi28@gmail.com
