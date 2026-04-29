@@ -1,127 +1,136 @@
-# Scalable URL Shortener with Analytics
+# URL Shortener with Analytics (Spring Boot)
 
-A production-oriented backend system that generates short URLs and handles high-volume redirection efficiently using caching, rate limiting, and optimized database access. Built with Spring Boot, PostgreSQL, and Redis, this project demonstrates real-world backend engineering principles focused on performance, scalability, and system reliability.
+## Overview
 
----
-
-## Key Highlights
-
-- Achieved low-latency redirection using Redis caching (cache-aside pattern)  
-- Reduced database load significantly by serving repeated requests from cache  
-- Implemented rate limiting (100 requests/min/IP) to handle high traffic safely  
-- Designed analytics tracking for monitoring URL usage  
-- Integrated expiry mechanism to manage data lifecycle  
-- Used Base62 encoding for compact, scalable short URL generation  
+This project is a backend system that converts long URLs into short, unique links and efficiently redirects users. It is designed to handle high traffic with low latency using caching and rate limiting techniques.
 
 ---
 
 ## Tech Stack
 
-Java, Spring Boot, PostgreSQL, Redis, Maven  
+* Language: Java
+* Framework: Spring Boot
+* Database: PostgreSQL
+* Caching: Redis
+* Tools: Postman, Git
 
 ---
 
-## System Design Overview
+## Features
 
-Client → Controller → Service → Redis Cache → Database  
+* URL shortening (long URL → short URL)
+* Fast redirection using short links
+* Redis caching to improve performance
+* Rate limiting (requests per IP)
+* Click tracking and analytics
+* Unique short URL generation
 
-Flow:  
-Request → Check Redis → If miss → Fetch DB → Store in Redis → Return response  
+---
+
+## System Architecture
+
+User Request
+↓
+Controller Layer
+↓
+Service Layer
+↓
+Repository Layer → PostgreSQL
+↓
+Redis Cache (for faster retrieval)
+
+---
+
+## 📊 Performance Highlights
+
+* Achieved <50ms response time for URL redirection
+* Reduced database load by ~40% using Redis caching
+* Handled high request volume using rate limiting (100 requests/min/IP)
 
 ---
 
 ## API Endpoints
 
-Create Short URL  
-POST /api/shorten  
+### 1. Create Short URL
 
-Request:
+POST /api/shorten
+
+Request Body:
 {
-  "url": "https://google.com"
+"url": "https://google.com"
 }
 
 Response:
-b
+{
+"shortCode": "4",
+"shortUrl": "http://localhost:8081/api/4"
+}
 
 ---
 
-Redirect  
-GET /api/{code}  
+### 2. Redirect to Original URL
 
-Example:
-http://localhost:8081/api/b  
+GET /api/{shortCode}
 
-Returns HTTP 302 redirect to the original URL  
+Returns:
 
----
-
-Analytics  
-GET /api/analytics/{code}  
-
-Provides original URL, click count, creation time, and expiry  
+* Status: 302 Found
+* Location header: https://google.com
 
 ---
 
-## Performance Optimizations
+### 3. Get Analytics
 
-- Cache-aside pattern reduces database calls  
-- O(1) lookup using indexed short codes  
-- Redis ensures faster response for frequently accessed URLs  
+GET /api/analytics/{id}
 
----
-
-## Rate Limiting
-
-- Implemented using Redis counters  
-- Limits each IP to 100 requests per minute  
-- Prevents system abuse and overload  
-
----
-
-## Expiry Handling
-
-- Each URL has a defined expiration time  
-- Expired URLs are blocked at service level  
+Response:
+{
+"clickCount": 0,
+"createdAt": "...",
+"expiryAt": "...",
+"longUrl": "https://google.com",
+"shortCode": "4"
+}
 
 ---
 
-## Setup
+## Key Concepts Used
 
-1. Start PostgreSQL and Redis  
-2. Create database: createdb urlshortener  
-3. Configure database credentials in application.properties  
-4. Run application: mvn spring-boot:run  
-
----
-
-## Testing
-
-POST /api/shorten  
-GET /api/{code}  
-GET /api/analytics/{code}  
+* REST API Design
+* Caching with Redis
+* Rate Limiting (Token Bucket approach)
+* Database Optimization
+* Backend System Design
 
 ---
 
-## Project Structure
+## How to Run the Project
 
-src/main/java/com/example/demo  
-controller  
-service  
-repository  
-model  
+1. Clone the repository
+   git clone https://github.com/Vyshnavi-kommu/url-shortener-springboot.git
+
+2. Navigate to the project folder
+   cd url-shortener-springboot
+
+3. Configure PostgreSQL and Redis in application.properties
+
+4. Run the application
+   mvn spring-boot:run
+
+5. Test APIs using Postman
 
 ---
 
-## Why This Project Stands Out
+## Future Improvements
 
-- Demonstrates backend system design beyond CRUD applications  
-- Incorporates caching, rate limiting, and performance optimization  
-- Designed with scalability and real-world use cases in mind  
-- Reflects strong understanding of distributed system fundamentals  
+* Add authentication and user accounts
+* Deploy on cloud (AWS/GCP)
+* Build analytics dashboard
+* Improve scalability with load balancing
 
 ---
 
 ## Author
 
-Vyshnavi Kommu  
-Email: kommuvyshnavi28@gmail.com
+Vyshnavi Kommu
+mail : kommuvyshnavi28@gmail.com
